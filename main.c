@@ -9,15 +9,9 @@
 #include "input-method-unstable-v2-client-protocol.h"
 #include "virtual-keyboard-unstable-v1-client-protocol.h"
 
-bool is_modifier_xkb_scancode(xkb_keycode_t xkb_key) {
-	return xkb_key == 0x32	// left shift
-		|| xkb_key == 0x3E	// right shift
-		|| xkb_key == 0x25	// left ctrl
-		|| xkb_key == 0x69	// right ctrl
-		|| xkb_key == 0x40	// left alt
-		|| xkb_key == 0x6C	// right alt
-		|| xkb_key == 0x85	// super
-		|| xkb_key == 0x42;	// caps lock
+bool is_shift_xkb_scancode(xkb_keycode_t xkb_key) {
+	return xkb_key == 0x32      // left shift
+		|| xkb_key == 0x3E; // right shift
 }
 
 static bool handle_key_pressed(struct wlhangul_seat *seat,
@@ -30,11 +24,11 @@ static bool handle_key_pressed(struct wlhangul_seat *seat,
 			hangul_ic_reset(seat->input_context);
 		}
 		handled = true;
-		if(is_modifier_xkb_scancode(xkb_key)) {
+		if(is_shift_xkb_scancode(xkb_key)) {
 			// Do no further processing of modifier key
 			return true;
 		}
-	} else if(is_modifier_xkb_scancode(xkb_key)) {
+	} else if(is_shift_xkb_scancode(xkb_key)) {
 		// Only check if modifier key is toggle_key
 		return true;
 	} else {
@@ -80,7 +74,7 @@ static bool handle_key_pressed(struct wlhangul_seat *seat,
 
 static bool handle_key_released(struct wlhangul_seat *seat,
 		xkb_keycode_t xkb_key) {
-	if(is_modifier_xkb_scancode(xkb_key)) {
+	if(is_shift_xkb_scancode(xkb_key)) {
 		// Do not handle modifier keys
 		return true;
 	}
