@@ -26,7 +26,7 @@ static bool handle_key_pressed(struct wlhangul_seat *seat,
 			break;
 		default:;
 			uint32_t ch = xkb_state_key_get_utf32(seat->xkb_state, xkb_key);
-			handled = seat->enabled && hangul_ic_process(seat->input_context, ch);
+			handled = seat->enabled && ch != 0 && hangul_ic_process(seat->input_context, ch);
 			break;
 		}
 	}
