@@ -317,7 +317,11 @@ int main(int argc, char *argv[]) {
 
 	struct wl_registry *registry = wl_display_get_registry(state.display);
 	wl_registry_add_listener(registry, &registry_listener, &state);
-	wl_display_roundtrip(state.display);
+
+	if (wl_display_roundtrip(state.display) < 0) {
+		fprintf(stderr, "wl_display_roundtrip() failed\n");
+		return 1;
+	}
 
 	if (state.input_method_manager == NULL) {
 		fprintf(stderr, "missing wl_seat or zwp_input_method_manager_v2\n");
