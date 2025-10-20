@@ -275,15 +275,17 @@ static const struct wl_registry_listener registry_listener = {
 static const char usage[] = "usage: wlhangul [options...]\n"
 	"\n"
 	"    -i hangul|english  Initial input mode (default: english)\n"
-	"    -k <key>           Key to toggle Hangul input (default: Hangul)\n";
+	"    -k <key>           Key to toggle Hangul input (default: Hangul)\n"
+	"    -l <keyboard>      Keyboard layout (default: 2)\n";
 
 int main(int argc, char *argv[]) {
 	struct wlhangul_state state = {0};
 	state.toggle_key = XKB_KEY_Hangul;
 	wl_list_init(&state.seats);
 
+	const char *layout = NULL;
 	int opt;
-	while ((opt = getopt(argc, argv, "hi:k:")) != -1) {
+	while ((opt = getopt(argc, argv, "hi:k:l:")) != -1) {
 		switch (opt) {
 		case 'i':
 			if (strcmp(optarg, "hangul") == 0) {
@@ -300,6 +302,13 @@ int main(int argc, char *argv[]) {
 				xkb_keysym_from_name(optarg, XKB_KEYSYM_NO_FLAGS);
 			if (state.toggle_key == XKB_KEY_NoSymbol) {
 				fprintf(stderr, "Invalid key for -k\n");
+				return 1;
+			}
+			break;
+		case 'l':
+			layout = optarg;
+			if (hangul_keyboard_list_get_keyboard(layout) == NULL) {
+				fprintf(stderr, "Invalid keyboard layout for -l\n");
 				return 1;
 			}
 			break;
@@ -330,7 +339,7 @@ int main(int argc, char *argv[]) {
 
 	struct wlhangul_seat *seat;
 	wl_list_for_each(seat, &state.seats, link) {
-		seat->input_context = hangul_ic_new("2");
+		seat->input_context = hangul_ic_new(layout);
 		seat->input_method = zwp_input_method_manager_v2_get_input_method(
 			state.input_method_manager, seat->wl_seat);
 		zwp_input_method_v2_add_listener(seat->input_method,
