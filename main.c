@@ -20,16 +20,19 @@ static bool handle_key_pressed(struct wlhangul_seat *seat,
 		}
 		handled = true;
 	} else {
+		if (!seat->enabled) {
+			return false;
+		}
 		switch (sym) {
 		case XKB_KEY_BackSpace:
-			handled = seat->enabled && hangul_ic_backspace(seat->input_context);
+			handled = hangul_ic_backspace(seat->input_context);
 			break;
 		default:;
 			uint32_t ch = xkb_state_key_get_utf32(seat->xkb_state, xkb_key);
 			if (ch == '\0') {
 				return false;
 			}
-			handled = seat->enabled && hangul_ic_process(seat->input_context, ch);
+			handled = hangul_ic_process(seat->input_context, ch);
 			break;
 		}
 	}
